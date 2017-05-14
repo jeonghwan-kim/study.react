@@ -1,0 +1,33 @@
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var EventEmitter = require('events').EventEmitter;
+var assign = require('object-assign');
+var tweet = null;
+
+function setTweet(receivedTweet) {
+    tweet = receivedTweet;
+}
+function emitChange(){
+    TweetStore.emit('change');
+}
+
+var TweetStore = assign({}, EventEmitter.prototype, {
+    addChangeListener: function(cb) {
+        this.on('change', cb);
+    },
+    removeChangeListener:function(cb) {
+        this.removeListener('change', cb);
+    },
+    getTweet:function(){
+        return tweet;
+    }
+});
+
+function handleAction(action){
+    if (action.type === 'receive_tweet') {
+        setTweet(actions.tweet);
+        emitChange()
+    }
+}
+
+TweetStore.dispatchToken = AppDispatcher.register(handleAction);
+module.exports = TweetStore;
